@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Survey & Customer Lead Capture</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Prompt', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            },
+            accent: {
+              500: '#f43f5e',
+              600: '#e11d48',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Prompt', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    @keyframes pulse-subtle {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+    }
+    .animate-pulse-subtle {
+      animation: pulse-subtle 3s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between selection:bg-brand-500 selection:text-white">
+
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+          <i class="fa-solid fa-bolt-lightning text-lg"></i>
+        </div>
+        <div>
+          <span class="text-xs font-semibold tracking-wider uppercase text-brand-600 block">งานสัมมนาประจำปี</span>
+          <h1 class="text-lg font-bold text-slate-900 leading-tight">TECH EXPO & INNOVATION 2026</h1>
+        </div>
+      </div>
+
+      <!-- Mode Switcher -->
+      <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+        <button id="navSurveyBtn" onclick="switchView('survey')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-white shadow-sm text-brand-600">
+          <i class="fa-solid fa-pen-to-square"></i>
+          <span>แบบสำรวจ</span>
+        </button>
+        <button id="navAdminBtn" onclick="switchView('admin')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>แดชบอร์ดผลลัพธ์</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notification Toast Container -->
+  <div id="toastContainer" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <main class="flex-1 max-w-4xl w-full mx-auto p-4 md:py-8">
+    
+    <!-- ================= VIEW 1: SURVEY SECTION ================= -->
+    <div id="surveySection" class="transition-all duration-300">
+      
+      <!-- Event Banner & Incentive Card -->
+      <div class="mb-6 bg-gradient-to-r from-brand-700 via-brand-600 to-indigo-600 rounded-3xl p-6 text-white shadow-xl shadow-brand-600/15 relative overflow-hidden">
+        <div class="absolute -right-8 -top-8 w-44 h-44 rounded-full bg-white/10 blur-2xl pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-medium text-white mb-2">
+              <i class="fa-solid fa-gift text-amber-300"></i> ทำแบบสอบถามรับสิทธิประโยชน์
+            </span>
+            <h2 class="text-xl sm:text-2xl font-bold tracking-tight">แบบประเมินความพึงพอใจ & ร่วมลุ้น Lucky Draw</h2>
+            <p class="text-slate-200 text-sm mt-1 max-w-lg">
+              ความคิดเห็นของท่านมีคุณค่าอย่างยิ่งในการพัฒนาอีเวนต์ครั้งถัดไป ใช้เวลาเพียง 2 นาที พร้อมรับรหัสสุ่มรางวัลที่จุดลงทะเบียน
+            </p>
+          </div>
+          <div class="bg-white/10 backdrop-blur-md border border-white/20 px-4 py-3 rounded-2xl flex items-center gap-3 shrink-0">
+            <div class="text-2xl text-amber-300 animate-pulse-subtle">
+              <i class="fa-solid fa-ticket-simple"></i>
+            </div>
+            <div>
+              <div class="text-xs text-slate-200">ของรางวัลพิเศษ</div>
+              <div class="text-sm font-bold text-white">Gadget & บัตรกำนัล</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Multi-step Indicator -->
+        <div class="mt-6 pt-5 border-t border-white/15 flex items-center justify-between">
+          <div class="flex items-center gap-2" id="stepIndicator1">
+            <div class="w-7 h-7 rounded-full bg-white text-brand-600 font-bold text-xs flex items-center justify-center shadow-md">1</div>
+            <span class="text-xs font-medium text-white hidden sm:inline">ข้อมูลทั่วไป</span>
+          </div>
+          <div class="flex-1 h-1 bg-white/20 mx-2 rounded-full overflow-hidden">
+            <div id="progressBar" class="h-full bg-amber-300 transition-all duration-300" style="width: 33.33%;"></div>
+          </div>
+          <div class="flex items-center gap-2" id="stepIndicator2">
+            <div class="w-7 h-7 rounded-full bg-white/30 text-white font-bold text-xs flex items-center justify-center">2</div>
+            <span class="text-xs font-medium text-slate-200 hidden sm:inline">ประเมินงาน</span>
+          </div>
+          <div class="flex-1 h-1 bg-white/20 mx-2 rounded-full overflow-hidden"></div>
+          <div class="flex items-center gap-2" id="stepIndicator3">
+            <div class="w-7 h-7 rounded-full bg-white/30 text-white font-bold text-xs flex items-center justify-center">3</div>
+            <span class="text-xs font-medium text-slate-200 hidden sm:inline">ความสนใจ & PDPA</span>
+          </div>
+        </div>
+      </div>
+
+      <form id="eventSurveyForm" onsubmit="handleFormSubmit(event)" class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8">
+        
+        <!-- STEP 1: Basic Attendee Information -->
+        <div id="step1Container" class="space-y-6">
+          <div class="border-b border-slate-100 pb-4">
+            <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <span class="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center text-sm font-semibold">1</span>
+              ข้อมูลผู้เข้าร่วมงาน (Attendee Information)
+            </h3>
+            <p class="text-xs text-slate-500 mt-1">กรอกข้อมูลติดต่อเพื่อใช้สำหรับติดต่อกลับและสุ่มแจกของรางวัล</p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Full Name -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1.5">ชื่อ-นามสกุล <span class="text-rose-500">*</span></label>
+              <div class="relative">
+                <i class="fa-regular fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="text" id="custName" required placeholder="สมชาย ใจดี" class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+              </div>
+            </div>
+
+            <!-- Phone Number -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1.5">เบอร์โทรศัพท์ติดต่อ <span class="text-rose-500">*</span></label>
+              <div class="relative">
+                <i class="fa-solid fa-phone absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="tel" id="custPhone" required placeholder="08x-xxx-xxxx" class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1.5">อีเมล (Work / Personal Email) <span class="text-rose-500">*</span></label>
+              <div class="relative">
+                <i class="fa-regular fa-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="email" id="custEmail" required placeholder="somchai@company.com" class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+              </div>
+            </div>
+
+            <!-- Company / Organization -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1.5">ชื่อบริษัท / หน่วยงาน</label>
+              <div class="relative">
+                <i class="fa-regular fa-building absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="text" id="custCompany" placeholder="บริษัท นวัตกรรม จำกัด (ถ้ามี)" class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+              </div>
+            </div>
+          </div>
+
+          <!-- Role / Position -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1.5">ระดับตำแหน่งงาน</label>
+              <select id="custRole" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500">
+                <option value="Executive / C-Level">ผู้บริหารระดับสูง (C-Level / Director)</option>
+                <option value="Manager / Team Lead">ผู้จัดการ / หัวหน้างาน (Manager / Lead)</option>
+                <option value="Senior / Specialist">ผู้เชี่ยวชาญ / พนักงานระดับสูง</option>
+                <option value="Staff / Operation">เจ้าหน้าที่ปฏิบัติการ / พนักงานทั่วไป</option>
+                <option value="Business Owner / Founder">เจ้าของกิจการ / ผู้ประกอบการ (SME/Startup)</option>
+                <option value="Student / General">นักศึกษา / บุคคลทั่วไป</option>
+              </select>
+            </div>
+
+            <!-- How did you hear about event -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1.5">รู้จักงานนี้ผ่านช่องทางใด?</label>
+              <select id="custSource" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500">
+                <option value="Social Media (Facebook / LinkedIn / TikTok)">Social Media (Facebook / LinkedIn / IG)</option>
+                <option value="Email Invitation / จดหมายเชิญ">Email Invitation / จดหมายเชิญ</option>
+                <option value="เพื่อนหรือเพื่อนร่วมงานแนะนำ">เพื่อนหรือเพื่อนร่วมงานแนะนำ</option>
+                <option value="เว็บไซต์ข่าว / ประชาสัมพันธ์">เว็บไซต์ข่าว / สื่อประชาสัมพันธ์</option>
+                <option value="เดินผ่านหน้างาน (Walk-in)">เดินผ่านหน้างาน (Walk-in)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex justify-end pt-4">
+            <button type="button" onclick="goToStep(2)" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm transition-all shadow-md shadow-brand-500/20 active:scale-95">
+              <span>ถัดไป: ประเมินความพึงพอใจ</span>
+              <i class="fa-solid fa-arrow-right text-xs"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 2: Ratings & Feedback -->
+        <div id="step2Container" class="hidden space-y-6">
+          <div class="border-b border-slate-100 pb-4 flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center text-sm font-semibold">2</span>
+                ความพึงพอใจต่อการจัดงาน (Event Experience)
+              </h3>
+              <p class="text-xs text-slate-500 mt-1">ให้คะแนนความพึงพอใจในมิติต่างๆ ของงานวันนี้</p>
+            </div>
+            <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium">ขั้นตอน 2/3</span>
+          </div>
+
+          <!-- Overall Star Rating -->
+          <div class="bg-slate-50/80 border border-slate-100 p-4 rounded-2xl">
+            <label class="block text-sm font-semibold text-slate-800 mb-2">1. ภาพรวมความพึงพอใจในการร่วมงานครั้งนี้ <span class="text-rose-500">*</span></label>
+            <div class="flex items-center gap-3" id="starRatingContainer">
+              <input type="hidden" id="overallRating" value="5">
+              <div class="flex items-center gap-1.5 text-2xl text-amber-400 cursor-pointer">
+                <button type="button" onclick="setRating(1)" class="star-btn transition-transform hover:scale-125 focus:outline-none"><i class="fa-solid fa-star"></i></button>
+                <button type="button" onclick="setRating(2)" class="star-btn transition-transform hover:scale-125 focus:outline-none"><i class="fa-solid fa-star"></i></button>
+                <button type="button" onclick="setRating(3)" class="star-btn transition-transform hover:scale-125 focus:outline-none"><i class="fa-solid fa-star"></i></button>
+                <button type="button" onclick="setRating(4)" class="star-btn transition-transform hover:scale-125 focus:outline-none"><i class="fa-solid fa-star"></i></button>
+                <button type="button" onclick="setRating(5)" class="star-btn transition-transform hover:scale-125 focus:outline-none"><i class="fa-solid fa-star"></i></button>
+              </div>
+              <span id="ratingLabel" class="text-xs font-semibold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">ยอดเยี่ยมมาก (5 ดาว)</span>
+            </div>
+          </div>
+
+          <!-- Specific Category Ratings (Grid) -->
+          <div class="space-y-4">
+            <label class="block text-sm font-semibold text-slate-800">2. การประเมินรายด้าน</label>
+            
+            <!-- Category 1 -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-white border border-slate-200 rounded-xl gap-2 hover:border-slate-300">
+              <span class="text-xs font-medium text-slate-700">เนื้อหาหัวข้อบรรยาย & คุณภาพวิทยากร</span>
+              <div class="flex gap-2">
+                <label class="cursor-pointer text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 has-[:checked]:bg-brand-50 has-[:checked]:border-brand-500 has-[:checked]:text-brand-700">
+                  <input type="radio" name="contentScore" value="พอใช้" class="sr-only"> พอใช้
+                </label>
+                <label class="cursor-pointer text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 has-[:checked]:bg-brand-50 has-[:checked]:border-brand-500 has-[:checked]:text-brand-700">
+                  <input type="radio" name="contentScore" value="ดี" class="sr-only"> ดี
+                </label>
+                <label class="cursor-pointer text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 has-[:checked]:bg-brand-50 has-[:checked]:border-brand-500 has-[:checked]:text-brand-700">
+                  <input type="radio" name="contentScore" value="ดีเยี่ยม" checked class="sr-only"> ดีเยี่ยม
+                </label>
+              </div>
+            </div>
+
+            <!-- Category 2 -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-white border border-slate-200 rounded-xl gap-2 hover:border-slate-300">
+              <span class="text-xs font-medium text-slate-700">สถานที่จัดงาน แสง เสียง และสิ่งอำนวยความสะดวก</span>
+              <div class="flex gap-2">
+                <label class="cursor-pointer text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 has-[:checked]:bg-brand-50 has-[:checked]:border-brand-500 has-[:checked]:text-brand-700">
+                  <input type="radio" name="venueScore" value="พอใช้" class="sr-only"> พอใช้
+                </label>
+                <label class="cursor-pointer text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 has-[:checked]:bg-brand-50 has-[:checked]:border-brand-500 has-[:checked]:text-brand-700">
+                  <input type="radio" name="venueScore" value="ดี" class="sr-only"> ดี
+                </label>
+                <label class="cursor-pointer text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 has-[:checked]:bg-brand-50 has-[:checked]:border-brand-500 has-[:checked]:text-brand-700">
+                  <input type="radio" name="venueScore" value="ดีเยี่ยม" checked class="sr-only"> ดีเยี่ยม
+                </label>
+              </div>
+            </div>
+
+            <!-- Category 3 -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-white border border-slate-200 rounded-xl gap-2 hover:border-slate-300">
+              <span class="text-xs font-medium text-slate-700">การต้อนรับและการประสานงานของเจ้าหน้าที่</span>
+              <div class="flex gap-2">
+                <label class="cursor-pointer text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 has-[:checked]:bg-brand-50 has-[:checked]:border-brand-500 has-[:checked]:text-brand-700">
+                  <input type="radio" name="staffScore" value="พอใช้" class="sr-only"> พอใช้
+                </label>
+                <label class="cursor-pointer text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 has-[:checked]:bg-brand-50 has-[:checked]:border-brand-500 has-[:checked]:text-brand-700">
+                  <input type="radio" name="staffScore" value="ดี" class="sr-only"> ดี
+                </label>
+                <label class="cursor-pointer text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 has-[:checked]:bg-brand-50 has-[:checked]:border-brand-500 has-[:checked]:text-brand-700">
+                  <input type="radio" name="staffScore" value="ดีเยี่ยม" checked class="sr-only"> ดีเยี่ยม
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- NPS Scale (0-10) -->
+          <div class="pt-2">
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-xs font-semibold text-slate-700">
+                3. โอกาสที่คุณจะแนะนำงานอีเวนต์นี้ให้กับเพื่อนหรือเพื่อนร่วมงาน (NPS)
+              </label>
+              <span id="npsBadge" class="text-xs font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded">9 / 10</span>
+            </div>
+            <div class="grid grid-cols-11 gap-1 text-center">
+              <template id="npsTemplate"></template>
+              <!-- 0 through 10 buttons dynamically or via simple loops -->
+              <div class="col-span-11 flex justify-between items-center gap-1 sm:gap-1.5 overflow-x-auto py-1">
+                <input type="hidden" id="npsValue" value="9">
+                <script>
+                  // Generate inline NPS buttons
+                  for (let i = 0; i <= 10; i++) {
+                    const activeClass = i === 9 ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-slate-700 border-slate-200 hover:border-brand-500';
+                    document.write(`
+                      <button type="button" onclick="setNPS(${i})" id="nps-btn-${i}" class="nps-select-btn flex-1 min-w-[28px] h-9 rounded-lg border text-xs font-bold transition-all ${activeClass}">
+                        ${i}
+                      </button>
+                    `);
+                  }
+                </script>
+              </div>
+            </div>
+            <div class="flex justify-between text-[11px] text-slate-400 mt-1">
+              <span>0 = ไม่แนะนำเลย</span>
+              <span>10 = แนะนำแน่นอน</span>
+            </div>
+          </div>
+
+          <!-- Feedback textarea -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1.5">ข้อเสนอแนะเพิ่มเติมสำหรับผู้จัดงาน</label>
+            <textarea id="feedbackText" rows="3" placeholder="สิ่งที่ชื่นชอบเป็นพิเศษ หรือสิ่งที่อยากให้ปรับปรุงในครั้งหน้า..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"></textarea>
+          </div>
+
+          <div class="flex justify-between pt-4">
+            <button type="button" onclick="goToStep(1)" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium text-sm transition-all">
+              <i class="fa-solid fa-arrow-left text-xs"></i>
+              <span>ย้อนกลับ</span>
+            </button>
+            <button type="button" onclick="goToStep(3)" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm transition-all shadow-md shadow-brand-500/20 active:scale-95">
+              <span>ถัดไป: ความสนใจ & ยืนยัน</span>
+              <i class="fa-solid fa-arrow-right text-xs"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 3: Business Interests, Lead Gen & PDPA -->
+        <div id="step3Container" class="hidden space-y-6">
+          <div class="border-b border-slate-100 pb-4 flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center text-sm font-semibold">3</span>
+                ความสนใจทางธุรกิจ & ความยินยอม PDPA
+              </h3>
+              <p class="text-xs text-slate-500 mt-1">เพื่อรับข้อมูลสิทธิพิเศษและเอกสารประกอบการบรรยาย</p>
+            </div>
+            <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium">ขั้นตอน 3/3</span>
+          </div>
+
+          <!-- Interests Multi-select -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-2">หัวข้อนวัตกรรมหรือโซลูชันที่คุณกำลังสนใจ (เลือกได้มากกว่า 1 ข้อ)</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5" id="interestTags">
+              <label class="flex items-center gap-3 p-3 bg-slate-50 hover:bg-brand-50/50 border border-slate-200 rounded-xl cursor-pointer transition-all has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50">
+                <input type="checkbox" name="interest" value="AI & Machine Learning" checked class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
+                <span class="text-xs font-medium text-slate-700"><i class="fa-solid fa-brain text-brand-500 mr-1.5"></i> Enterprise AI & Automation</span>
+              </label>
+
+              <label class="flex items-center gap-3 p-3 bg-slate-50 hover:bg-brand-50/50 border border-slate-200 rounded-xl cursor-pointer transition-all has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50">
+                <input type="checkbox" name="interest" value="Cloud & Cyber Security" class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
+                <span class="text-xs font-medium text-slate-700"><i class="fa-solid fa-shield-halved text-brand-500 mr-1.5"></i> Cloud & Cyber Security</span>
+              </label>
+
+              <label class="flex items-center gap-3 p-3 bg-slate-50 hover:bg-brand-50/50 border border-slate-200 rounded-xl cursor-pointer transition-all has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50">
+                <input type="checkbox" name="interest" value="Big Data & Analytics" checked class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
+                <span class="text-xs font-medium text-slate-700"><i class="fa-solid fa-chart-line text-brand-500 mr-1.5"></i> Big Data & Analytics</span>
+              </label>
+
+              <label class="flex items-center gap-3 p-3 bg-slate-50 hover:bg-brand-50/50 border border-slate-200 rounded-xl cursor-pointer transition-all has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50">
+                <input type="checkbox" name="interest" value="Digital Marketing & CRM" class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
+                <span class="text-xs font-medium text-slate-700"><i class="fa-solid fa-bullhorn text-brand-500 mr-1.5"></i> Digital Marketing & CRM</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Business Follow Up Question -->
+          <div class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-4">
+            <label class="block text-xs font-semibold text-indigo-900 mb-2">
+              <i class="fa-regular fa-calendar-check text-brand-600 mr-1"></i> คุณต้องการให้ทีมงานหรือพาร์ทเนอร์ติดต่อเพื่อให้ข้อมูลเพิ่มเติมหรือไม่?
+            </label>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <label class="flex items-center gap-2 p-2.5 bg-white border border-indigo-200 rounded-xl text-xs font-medium cursor-pointer has-[:checked]:border-brand-600 has-[:checked]:text-brand-700">
+                <input type="radio" name="contactConsent" value="ต้องการติดต่อด่วน" class="text-brand-600"> สนใจ demo / คุยโปรเจกต์
+              </label>
+              <label class="flex items-center gap-2 p-2.5 bg-white border border-indigo-200 rounded-xl text-xs font-medium cursor-pointer has-[:checked]:border-brand-600 has-[:checked]:text-brand-700">
+                <input type="radio" name="contactConsent" value="ส่งเอกสารผ่านอีเมลเท่านั้น" checked class="text-brand-600"> ส่งเฉพาะสไลด์และเอกสาร
+              </label>
+              <label class="flex items-center gap-2 p-2.5 bg-white border border-indigo-200 rounded-xl text-xs font-medium cursor-pointer has-[:checked]:border-brand-600 has-[:checked]:text-brand-700">
+                <input type="radio" name="contactConsent" value="ไม่ต้องการให้ติดต่อ" class="text-brand-600"> ยังไม่ต้องการในตอนนี้
+              </label>
+            </div>
+          </div>
+
+          <!-- PDPA Consent Box -->
+          <div class="border border-slate-200 bg-slate-50 p-4 rounded-2xl space-y-3">
+            <div class="flex items-center gap-2 text-xs font-semibold text-slate-800">
+              <i class="fa-solid fa-lock text-brand-600"></i> นโยบายคุ้มครองข้อมูลส่วนบุคคล (PDPA Consent)
+            </div>
+            <p class="text-[11px] text-slate-500 leading-relaxed">
+              ผู้จัดงานให้ความสำคัญอย่างยิ่งต่อความปลอดภัยของข้อมูลส่วนบุคคลของท่าน ข้อมูลที่จัดเก็บจะนำไปใช้ในการวิเคราะห์พัฒนาการจัดงาน การส่งเอกสารประกอบสัมมนา และการตรวจสอบสิทธิ์ Lucky Draw ภายในงานนี้เท่านั้น
+            </p>
+            <label class="flex items-start gap-2.5 cursor-pointer pt-1">
+              <input type="checkbox" id="pdpaAgree" required class="mt-0.5 w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
+              <span class="text-xs text-slate-700 font-medium">ข้าพเจ้ายินยอมให้ประมวลผลข้อมูลส่วนบุคคลตามนโยบายความเป็นส่วนตัว <span class="text-rose-500">*</span></span>
+            </label>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="flex items-center justify-between pt-4">
+            <button type="button" onclick="goToStep(2)" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium text-sm transition-all">
+              <i class="fa-solid fa-arrow-left text-xs"></i>
+              <span>ย้อนกลับ</span>
+            </button>
+            <button type="submit" id="submitBtn" class="inline-flex items-center gap-2 px-7 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white font-semibold text-sm transition-all shadow-lg shadow-brand-500/25 active:scale-95">
+              <i class="fa-solid fa-paper-plane"></i>
+              <span>ส่งแบบสอบถาม & รับโค้ดรางวัล</span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- ================= VIEW 2: SUCCESS & LUCKY DRAW VOUCHER ================= -->
+    <div id="successSection" class="hidden">
+      <div class="max-w-md mx-auto bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden text-center p-6 sm:p-8 animate-fade-in">
+        
+        <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl shadow-inner">
+          <i class="fa-solid fa-check"></i>
+        </div>
+
+        <h2 class="text-2xl font-bold text-slate-900">ขอบคุณสำหรับข้อมูล!</h2>
+        <p class="text-slate-500 text-xs sm:text-sm mt-1">บันทึกข้อมูลเรียบร้อยแล้ว แสดงหน้านี้ต่อเจ้าหน้าที่เพื่อรับของที่ระลึก</p>
+
+        <!-- Digital Lucky Draw Ticket Voucher -->
+        <div class="my-6 relative bg-gradient-to-br from-brand-600 via-indigo-600 to-purple-700 rounded-2xl p-5 text-white shadow-lg overflow-hidden border border-brand-400/30">
+          
+          <!-- Notches on ticket sides -->
+          <div class="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white"></div>
+          <div class="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white"></div>
+
+          <div class="text-[11px] uppercase tracking-wider text-indigo-200 font-semibold">LUCKY DRAW PASS 2026</div>
+          <div class="text-2xl font-extrabold tracking-widest my-2 font-mono" id="voucherCodeDisplay">EVT-78942</div>
+          
+          <div class="border-t border-dashed border-white/20 pt-3 mt-3 flex items-center justify-between text-left text-xs">
+            <div>
+              <div class="text-[10px] text-indigo-200">ชื่อผู้เข้าร่วม</div>
+              <div class="font-semibold text-white truncate max-w-[150px]" id="voucherNameDisplay">คุณสมชาย ใจดี</div>
+            </div>
+            <div class="text-right">
+              <div class="text-[10px] text-indigo-200">สถานะ</div>
+              <span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-300">
+                <i class="fa-solid fa-circle-check text-[9px]"></i> พร้อมรับรางวัล
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl p-3 text-xs flex items-center gap-2.5 mb-6 text-left">
+          <i class="fa-solid fa-circle-info text-amber-600 text-base shrink-0"></i>
+          <span>สามารถแคปเจอร์หน้าจอหน้านี้เก็บไว้ หรือแจ้งเบอร์โทรศัพท์ที่จุดของรางวัล Booth A1</span>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-2.5">
+          <button onclick="resetFormForNewUser()" class="flex-1 py-2.5 px-4 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium text-xs transition-all">
+            <i class="fa-solid fa-rotate-left mr-1"></i> ทำรายการใหม่
+          </button>
+          <button onclick="switchView('admin')" class="flex-1 py-2.5 px-4 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-medium text-xs transition-all shadow-md">
+            <i class="fa-solid fa-chart-column mr-1"></i> ดูแดชบอร์ดสรุปผล
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= VIEW 3: ORGANIZER DASHBOARD ================= -->
+    <div id="adminSection" class="hidden space-y-6">
+      
+      <!-- Dashboard Top Bar -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <div>
+          <span class="text-xs font-semibold text-brand-600 uppercase tracking-wider">Organizer Real-Time Insights</span>
+          <h2 class="text-xl font-bold text-slate-900">สรุปผลการสำรวจและ Lead ข้อมูลลูกค้า</h2>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="exportToCSV()" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium transition-all shadow-sm">
+            <i class="fa-solid fa-file-arrow-down text-emerald-400"></i>
+            <span>Export CSV</span>
+          </button>
+          <button onclick="seedSampleData()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs font-medium transition-all">
+            <i class="fa-solid fa-wand-magic-sparkles text-brand-500"></i>
+            <span>เติมข้อมูลตัวอย่าง</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Summary Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- KPI 1 -->
+        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0">
+            <i class="fa-solid fa-users"></i>
+          </div>
+          <div>
+            <div class="text-xs font-medium text-slate-500">ผู้ตอบแบบสำรวจ</div>
+            <div class="text-xl sm:text-2xl font-bold text-slate-900" id="kpiTotalResponses">0</div>
+          </div>
+        </div>
+
+        <!-- KPI 2 -->
+        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl shrink-0">
+            <i class="fa-solid fa-star"></i>
+          </div>
+          <div>
+            <div class="text-xs font-medium text-slate-500">ความพึงพอใจเฉลี่ย</div>
+            <div class="text-xl sm:text-2xl font-bold text-slate-900" id="kpiAvgRating">0.0 / 5</div>
+          </div>
+        </div>
+
+        <!-- KPI 3 -->
+        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0">
+            <i class="fa-solid fa-heart-pulse"></i>
+          </div>
+          <div>
+            <div class="text-xs font-medium text-slate-500">NPS Score เฉลี่ย</div>
+            <div class="text-xl sm:text-2xl font-bold text-slate-900" id="kpiAvgNPS">0</div>
+          </div>
+        </div>
+
+        <!-- KPI 4 -->
+        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl shrink-0">
+            <i class="fa-solid fa-bullseye"></i>
+          </div>
+          <div>
+            <div class="text-xs font-medium text-slate-500">สนใจติดต่อโปรเจกต์</div>
+            <div class="text-xl sm:text-2xl font-bold text-slate-900" id="kpiHotLeads">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual Analytics Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Chart 1: Interest Distribution -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-chart-column text-brand-600"></i> หัวข้อนวัตกรรมที่ลูกค้าสนใจมากที่สุด
+          </h3>
+          <div class="h-64 relative">
+            <canvas id="interestChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 2: Attendee Role Breakdown -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-pie-chart text-brand-600"></i> สัดส่วนกลุ่มผู้เข้าร่วมงาน (Job Roles)
+          </h3>
+          <div class="h-64 relative flex items-center justify-center">
+            <canvas id="roleChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer Lead Data Table -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">รายชื่อลูกค้าและฟีดแบ็กรายบุคคล</h3>
+            <p class="text-xs text-slate-400 mt-0.5">ข้อมูลที่ถูกบันทึกจากฟอร์มแบบสอบถามในระบบ</p>
+          </div>
+          <div class="relative w-full sm:w-64">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input type="text" id="tableSearch" onkeyup="filterLeadTable()" placeholder="ค้นหาชื่อ, เบอร์, บริษัท..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-500">
+          </div>
+        </div>
+
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left text-xs text-slate-600">
+            <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider text-[11px] font-semibold border-b border-slate-100">
+              <tr>
+                <th class="py-3 px-4">รหัส Voucher</th>
+                <th class="py-3 px-4">ชื่อ - นามสกุล</th>
+                <th class="py-3 px-4">เบอร์โทร / อีเมล</th>
+                <th class="py-3 px-4">บริษัท / ตำแหน่ง</th>
+                <th class="py-3 px-4">ความพึงพอใจ</th>
+                <th class="py-3 px-4">ความต้องการ</th>
+                <th class="py-3 px-4">ข้อเสนอแนะ</th>
+              </tr>
+            </thead>
+            <tbody id="leadTableBody" class="divide-y divide-slate-100 font-medium">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+        <div id="emptyTableMessage" class="p-8 text-center text-slate-400 text-xs hidden">
+          ยังไม่มีข้อมูลแบบสอบถามในขณะนี้ ลองทำแบบสำรวจหรือกด "เติมข้อมูลตัวอย่าง"
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="bg-white border-t border-slate-200 py-4 mt-8">
+    <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+      <div>© 2026 Tech Expo & Event Lead Management System. All rights reserved.</div>
+      <div class="flex items-center gap-4 text-[11px]">
+        <span class="inline-flex items-center gap-1 text-emerald-600"><i class="fa-solid fa-shield-halved"></i> PDPA Compliant</span>
+        <span>Secure Cloud Database</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Initial State & Mock Data for instant usability
+    const INITIAL_LEADS = [
+      {
+        id: "EVT-83921",
+        name: "ธีรเดช เจริญสุข",
+        phone: "081-445-9012",
+        email: "theeradech@techcorp.co.th",
+        company: "Tech Corp Thailand",
+        role: "Executive / C-Level",
+        source: "Social Media (Facebook / LinkedIn / TikTok)",
+        overallRating: 5,
+        contentScore: "ดีเยี่ยม",
+        venueScore: "ดี",
+        staffScore: "ดีเยี่ยม",
+        nps: 10,
+        feedback: "การจัดเวทีและหัวข้อ AI มีประโยชน์มาก อยากให้นำเคสตัวอย่างในไทยมาแชร์เพิ่มครับ",
+        interests: ["AI & Machine Learning", "Big Data & Analytics"],
+        contactConsent: "ต้องการติดต่อด่วน",
+        createdAt: "2026-09-24 09:15"
+      },
+      {
+        id: "EVT-45129",
+        name: "ศิริพร บุญมั่น",
+        phone: "089-223-1189",
+        email: "siriporn.b@sme-retail.com",
+        company: "SME Retail Hub",
+        role: "Business Owner / Founder",
+        source: "เพื่อนหรือเพื่อนร่วมงานแนะนำ",
+        overallRating: 4,
+        contentScore: "ดีเยี่ยม",
+        venueScore: "ดี",
+        staffScore: "ดี",
+        nps: 9,
+        feedback: "ชอบบูธจัดแสดงมาก ได้คู่ค้าใหม่ๆ จากในงานนี้เลยค่ะ",
+        interests: ["Digital Marketing & CRM"],
+        contactConsent: "ส่งเอกสารผ่านอีเมลเท่านั้น",
+        createdAt: "2026-09-24 09:30"
+      },
+      {
+        id: "EVT-90412",
+        name: "ณัฐวุฒิ เกียรติอนันต์",
+        phone: "086-778-3411",
+        email: "nutthawut@cloudsys.net",
+        company: "CloudSys Solutions",
+        role: "Manager / Team Lead",
+        source: "Email Invitation / จดหมายเชิญ",
+        overallRating: 5,
+        contentScore: "ดีเยี่ยม",
+        venueScore: "ดีเยี่ยม",
+        staffScore: "ดีเยี่ยม",
+        nps: 10,
+        feedback: "อาหารว่างและจุดลงทะเบียนรวดเร็วมากครับ",
+        interests: ["Cloud & Cyber Security", "Enterprise AI & Automation"],
+        contactConsent: "ต้องการติดต่อด่วน",
+        createdAt: "2026-09-24 09:48"
+      }
+    ];
+
+    // LocalStorage Key
+    const STORAGE_KEY = 'EVENT_SURVEY_RESPONSES_2026';
+
+    function getStoredLeads() {
+      const data = localStorage.getItem(STORAGE_KEY);
+      if (!data) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_LEADS));
+        return INITIAL_LEADS;
+      }
+      try {
+        return JSON.parse(data);
+      } catch (e) {
+        return INITIAL_LEADS;
+      }
+    }
+
+    function saveLeads(leads) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(leads));
+    }
+
+    let currentStep = 1;
+
+    function goToStep(step) {
+      if (step === 2) {
+        // Validate step 1 fields
+        const name = document.getElementById('custName').value.trim();
+        const phone = document.getElementById('custPhone').value.trim();
+        const email = document.getElementById('custEmail').value.trim();
+        if (!name || !phone || !email) {
+          showToast('กรุณากรอกข้อมูลชื่อ, เบอร์โทร และอีเมลให้ครบถ้วน', 'warning');
+          return;
+        }
+      }
+
+      // Hide all step containers
+      document.getElementById('step1Container').classList.add('hidden');
+      document.getElementById('step2Container').classList.add('hidden');
+      document.getElementById('step3Container').classList.add('hidden');
+
+      // Update progress bar & indicators
+      const progressBar = document.getElementById('progressBar');
+      const step1Ind = document.getElementById('stepIndicator1').querySelector('div');
+      const step2Ind = document.getElementById('stepIndicator2').querySelector('div');
+      const step3Ind = document.getElementById('stepIndicator3').querySelector('div');
+
+      if (step === 1) {
+        document.getElementById('step1Container').classList.remove('hidden');
+        progressBar.style.width = '33.33%';
+        step1Ind.className = 'w-7 h-7 rounded-full bg-white text-brand-600 font-bold text-xs flex items-center justify-center shadow-md';
+        step2Ind.className = 'w-7 h-7 rounded-full bg-white/30 text-white font-bold text-xs flex items-center justify-center';
+        step3Ind.className = 'w-7 h-7 rounded-full bg-white/30 text-white font-bold text-xs flex items-center justify-center';
+      } else if (step === 2) {
+        document.getElementById('step2Container').classList.remove('hidden');
+        progressBar.style.width = '66.66%';
+        step1Ind.className = 'w-7 h-7 rounded-full bg-emerald-400 text-white font-bold text-xs flex items-center justify-center';
+        step2Ind.className = 'w-7 h-7 rounded-full bg-white text-brand-600 font-bold text-xs flex items-center justify-center shadow-md';
+        step3Ind.className = 'w-7 h-7 rounded-full bg-white/30 text-white font-bold text-xs flex items-center justify-center';
+      } else if (step === 3) {
+        document.getElementById('step3Container').classList.remove('hidden');
+        progressBar.style.width = '100%';
+        step1Ind.className = 'w-7 h-7 rounded-full bg-emerald-400 text-white font-bold text-xs flex items-center justify-center';
+        step2Ind.className = 'w-7 h-7 rounded-full bg-emerald-400 text-white font-bold text-xs flex items-center justify-center';
+        step3Ind.className = 'w-7 h-7 rounded-full bg-white text-brand-600 font-bold text-xs flex items-center justify-center shadow-md';
+      }
+      currentStep = step;
+      window.scrollTo({ top: 120, behavior: 'smooth' });
+    }
+
+    function setRating(rating) {
+      document.getElementById('overallRating').value = rating;
+      const stars = document.querySelectorAll('.star-btn i');
+      stars.forEach((star, idx) => {
+        if (idx < rating) {
+          star.className = 'fa-solid fa-star';
+        } else {
+          star.className = 'fa-regular fa-star text-slate-300';
+        }
+      });
+
+      const label = document.getElementById('ratingLabel');
+      const ratingTexts = {
+        1: 'ต้องปรับปรุง (1 ดาว)',
+        2: 'พอใช้ (2 ดาว)',
+        3: 'ปานกลาง (3 ดาว)',
+        4: 'ดีมาก (4 ดาว)',
+        5: 'ยอดเยี่ยมมาก (5 ดาว)'
+      };
+      label.innerText = ratingTexts[rating] || `${rating} ดาว`;
+    }
+
+    function setNPS(val) {
+      document.getElementById('npsValue').value = val;
+      document.getElementById('npsBadge').innerText = `${val} / 10`;
+      
+      const buttons = document.querySelectorAll('.nps-select-btn');
+      buttons.forEach((btn, index) => {
+        if (index === val) {
+          btn.className = 'nps-select-btn flex-1 min-w-[28px] h-9 rounded-lg border text-xs font-bold transition-all bg-brand-600 text-white border-brand-600 shadow-sm';
+        } else {
+          btn.className = 'nps-select-btn flex-1 min-w-[28px] h-9 rounded-lg border text-xs font-bold transition-all bg-white text-slate-700 border-slate-200 hover:border-brand-500';
+        }
+      });
+    }
+
+    function handleFormSubmit(e) {
+      e.preventDefault();
+
+      const pdpaAgree = document.getElementById('pdpaAgree').checked;
+      if (!pdpaAgree) {
+        showToast('กรุณากดยินยอมนโยบาย PDPA ก่อนทำการบันทึก', 'warning');
+        return;
+      }
+
+      // Collect values
+      const name = document.getElementById('custName').value.trim();
+      const phone = document.getElementById('custPhone').value.trim();
+      const email = document.getElementById('custEmail').value.trim();
+      const company = document.getElementById('custCompany').value.trim() || '-';
+      const role = document.getElementById('custRole').value;
+      const source = document.getElementById('custSource').value;
+      const overallRating = parseInt(document.getElementById('overallRating').value) || 5;
+      
+      const contentScore = document.querySelector('input[name="contentScore"]:checked')?.value || 'ดี';
+      const venueScore = document.querySelector('input[name="venueScore"]:checked')?.value || 'ดี';
+      const staffScore = document.querySelector('input[name="staffScore"]:checked')?.value || 'ดีเยี่ยม';
+      const nps = parseInt(document.getElementById('npsValue').value) || 9;
+      const feedback = document.getElementById('feedbackText').value.trim() || 'ไม่มีข้อเสนอแนะเพิ่มเติม';
+
+      // Interests
+      const checkedInterests = Array.from(document.querySelectorAll('input[name="interest"]:checked')).map(el => el.value);
+      const contactConsent = document.querySelector('input[name="contactConsent"]:checked')?.value || 'ส่งเฉพาะสไลด์และเอกสาร';
+
+      // Generate random ticket voucher
+      const randomCode = 'EVT-' + Math.floor(10000 + Math.random() * 90000);
+
+      const newRecord = {
+        id: randomCode,
+        name,
+        phone,
+        email,
+        company,
+        role,
+        source,
+        overallRating,
+        contentScore,
+        venueScore,
+        staffScore,
+        nps,
+        feedback,
+        interests: checkedInterests,
+        contactConsent,
+        createdAt: new Date().toISOString().replace('T', ' ').substring(0, 16)
+      };
+
+      // Save to leads array
+      const leads = getStoredLeads();
+      leads.unshift(newRecord);
+      saveLeads(leads);
+
+      // Trigger Confetti Celebration
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+      }
+
+      // Populate voucher details
+      document.getElementById('voucherCodeDisplay').innerText = randomCode;
+      document.getElementById('voucherNameDisplay').innerText = name;
+
+      // Show success section
+      document.getElementById('surveySection').classList.add('hidden');
+      document.getElementById('successSection').classList.remove('hidden');
+
+      showToast('บันทึกข้อมูลแบบสอบถามสำเร็จ!', 'success');
+    }
+
+    function resetFormForNewUser() {
+      document.getElementById('eventSurveyForm').reset();
+      setRating(5);
+      setNPS(9);
+      goToStep(1);
+      document.getElementById('successSection').classList.add('hidden');
+      document.getElementById('surveySection').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    let interestChartInstance = null;
+    let roleChartInstance = null;
+
+    function switchView(view) {
+      const surveySec = document.getElementById('surveySection');
+      const successSec = document.getElementById('successSection');
+      const adminSec = document.getElementById('adminSection');
+      const navSurveyBtn = document.getElementById('navSurveyBtn');
+      const navAdminBtn = document.getElementById('navAdminBtn');
+
+      if (view === 'survey') {
+        adminSec.classList.add('hidden');
+        successSec.classList.add('hidden');
+        surveySec.classList.remove('hidden');
+
+        navSurveyBtn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-white shadow-sm text-brand-600';
+        navAdminBtn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900';
+      } else {
+        surveySec.classList.add('hidden');
+        successSec.classList.add('hidden');
+        adminSec.classList.remove('hidden');
+
+        navAdminBtn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-white shadow-sm text-brand-600';
+        navSurveyBtn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900';
+
+        renderDashboard();
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderDashboard() {
+      const leads = getStoredLeads();
+
+      // KPIs
+      const total = leads.length;
+      document.getElementById('kpiTotalResponses').innerText = total;
+
+      if (total > 0) {
+        const sumRating = leads.reduce((acc, curr) => acc + (curr.overallRating || 0), 0);
+        const avgRating = (sumRating / total).toFixed(1);
+        document.getElementById('kpiAvgRating').innerText = `${avgRating} / 5`;
+
+        const sumNps = leads.reduce((acc, curr) => acc + (curr.nps || 0), 0);
+        const avgNps = (sumNps / total).toFixed(1);
+        document.getElementById('kpiAvgNPS').innerText = avgNps;
+
+        const hotLeads = leads.filter(l => l.contactConsent === 'ต้องการติดต่อด่วน').length;
+        document.getElementById('kpiHotLeads').innerText = hotLeads;
+      } else {
+        document.getElementById('kpiAvgRating').innerText = '0.0 / 5';
+        document.getElementById('kpiAvgNPS').innerText = '0';
+        document.getElementById('kpiHotLeads').innerText = '0';
+      }
+
+      // Render Charts
+      renderCharts(leads);
+
+      // Populate Table
+      populateTable(leads);
+    }
+
+    function renderCharts(leads) {
+      // 1. Interest Counts
+      const interestCounts = {
+        'AI & ML': 0,
+        'Cloud & Security': 0,
+        'Big Data': 0,
+        'Marketing & CRM': 0
+      };
+
+      leads.forEach(l => {
+        (l.interests || []).forEach(item => {
+          if (item.includes('AI')) interestCounts['AI & ML']++;
+          else if (item.includes('Cloud') || item.includes('Cyber')) interestCounts['Cloud & Security']++;
+          else if (item.includes('Data')) interestCounts['Big Data']++;
+          else if (item.includes('Marketing')) interestCounts['Marketing & CRM']++;
+        });
+      });
+
+      const interestCtx = document.getElementById('interestChart').getContext('2d');
+      if (interestChartInstance) interestChartInstance.destroy();
+      interestChartInstance = new Chart(interestCtx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(interestCounts),
+          datasets: [{
+            label: 'จำนวนผู้สนใจ',
+            data: Object.values(interestCounts),
+            backgroundColor: '#6366f1',
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { stepSize: 1, font: { family: 'Prompt', size: 10 } }
+            },
+            x: {
+              ticks: { font: { family: 'Prompt', size: 11 } }
+            }
+          }
+        }
+      });
+
+      // 2. Roles Breakdown
+      const roleMap = {};
+      leads.forEach(l => {
+        const r = l.role || 'อื่นๆ';
+        roleMap[r] = (roleMap[r] || 0) + 1;
+      });
+
+      const roleCtx = document.getElementById('roleChart').getContext('2d');
+      if (roleChartInstance) roleChartInstance.destroy();
+      roleChartInstance = new Chart(roleCtx, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(roleMap),
+          datasets: [{
+            data: Object.values(roleMap),
+            backgroundColor: ['#4f46e5', '#38bdf8', '#10b981', '#f59e0b', '#ec4899', '#94a3b8']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: { font: { family: 'Prompt', size: 10 }, boxWidth: 12 }
+            }
+          }
+        }
+      });
+    }
+
+    function populateTable(leads) {
+      const tbody = document.getElementById('leadTableBody');
+      const emptyMsg = document.getElementById('emptyTableMessage');
+      tbody.innerHTML = '';
+
+      if (!leads || leads.length === 0) {
+        emptyMsg.classList.remove('hidden');
+        return;
+      }
+      emptyMsg.classList.add('hidden');
+
+      leads.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 transition-colors';
+
+        // Badge styling for consent
+        let consentBadge = '';
+        if (item.contactConsent === 'ต้องการติดต่อด่วน') {
+          consentBadge = `<span class="inline-flex items-center gap-1 text-[10px] font-semibold bg-rose-50 text-rose-600 px-2 py-0.5 rounded-full"><i class="fa-solid fa-fire"></i> ติดต่อด่วน</span>`;
+        } else if (item.contactConsent === 'ส่งเอกสารผ่านอีเมลเท่านั้น') {
+          consentBadge = `<span class="inline-flex items-center gap-1 text-[10px] font-semibold bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full"><i class="fa-regular fa-envelope"></i> ส่งสไลด์</span>`;
+        } else {
+          consentBadge = `<span class="text-[10px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">ไม่ติดต่อ</span>`;
+        }
+
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-mono font-bold text-brand-600">${item.id || '-'}</td>
+          <td class="py-3 px-4 text-slate-900 font-semibold">${item.name}</td>
+          <td class="py-3 px-4 text-slate-500">
+            <div>${item.phone}</div>
+            <div class="text-[11px] text-slate-400">${item.email}</div>
+          </td>
+          <td class="py-3 px-4">
+            <div class="text-slate-700">${item.company || '-'}</div>
+            <div class="text-[10px] text-slate-400">${item.role}</div>
+          </td>
+          <td class="py-3 px-4">
+            <div class="flex items-center text-amber-500 gap-1 font-bold">
+              <i class="fa-solid fa-star text-[10px]"></i> ${item.overallRating} <span class="text-slate-400 text-[10px] font-normal">(NPS: ${item.nps})</span>
+            </div>
+          </td>
+          <td class="py-3 px-4">${consentBadge}</td>
+          <td class="py-3 px-4 max-w-[200px] truncate text-slate-600" title="${item.feedback}">
+            ${item.feedback}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterLeadTable() {
+      const q = document.getElementById('tableSearch').value.toLowerCase();
+      const leads = getStoredLeads();
+      const filtered = leads.filter(l => 
+        l.name.toLowerCase().includes(q) ||
+        l.phone.includes(q) ||
+        l.email.toLowerCase().includes(q) ||
+        (l.company && l.company.toLowerCase().includes(q)) ||
+        (l.id && l.id.toLowerCase().includes(q))
+      );
+      populateTable(filtered);
+    }
+
+    function exportToCSV() {
+      const leads = getStoredLeads();
+      if (!leads.length) {
+        showToast('ไม่มีข้อมูลสำหรับส่งออก', 'warning');
+        return;
+      }
+
+      const headers = ['Voucher Code', 'Name', 'Phone', 'Email', 'Company', 'Role', 'Source', 'Overall Rating', 'NPS', 'Feedback', 'Contact Preference', 'Created At'];
+      const rows = leads.map(l => [
+        `"${l.id || ''}"`,
+        `"${l.name || ''}"`,
+        `"${l.phone || ''}"`,
+        `"${l.email || ''}"`,
+        `"${l.company || ''}"`,
+        `"${l.role || ''}"`,
+        `"${l.source || ''}"`,
+        `"${l.overallRating || ''}"`,
+        `"${l.nps || ''}"`,
+        `"${(l.feedback || '').replace(/"/g, '""')}"`,
+        `"${l.contactConsent || ''}"`,
+        `"${l.createdAt || ''}"`
+      ]);
+
+      const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `Event_Leads_Report_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('ส่งออกไฟล์ CSV สำเร็จ', 'success');
+    }
+
+    function seedSampleData() {
+      saveLeads(INITIAL_LEADS);
+      renderDashboard();
+      showToast('รีเซ็ตและเติมข้อมูลตัวอย่างสำเร็จ', 'success');
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      
+      const colors = {
+        success: 'bg-emerald-600 text-white shadow-emerald-500/20',
+        warning: 'bg-amber-500 text-white shadow-amber-500/20',
+        info: 'bg-slate-900 text-white shadow-slate-900/20'
+      };
+
+      const icons = {
+        success: 'fa-solid fa-circle-check',
+        warning: 'fa-solid fa-triangle-exclamation',
+        info: 'fa-solid fa-circle-info'
+      };
+
+      toast.className = `flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-xl text-xs font-semibold transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto ${colors[type] || colors.info}`;
+      toast.innerHTML = `<i class="${icons[type] || icons.info}"></i> <span>${message}</span>`;
+      
+      container.appendChild(toast);
+      
+      // Animate in
+      setTimeout(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      }, 10);
+
+      // Remove after 3.5s
+      setTimeout(() => {
+        toast.classList.add('opacity-0', '-translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      getStoredLeads();
+    });
+  </script>
+</body>
+</html>
